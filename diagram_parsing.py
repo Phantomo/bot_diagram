@@ -1,12 +1,16 @@
 from lxml import etree
 
-class Button(object):
+class BotButton(object):
 	text = ''
-	link = None
+	id = None
+	target = None
+	source = None
 
-	def __init__(self, text, link):
+	def __init__(self, text, elem_id, source, target):
 		self.text = text
-		self.link = link
+		self.id = elem_id
+		self.source = source
+		self.target = target
 
 	def get_text(self):
 		return self.text
@@ -14,6 +18,7 @@ class Button(object):
 	def get_link(self):
 		return self.link
 
+	def
 
 class BotMsg(object):
 	msg = ''
@@ -29,6 +34,7 @@ class BotDiagram(object):
 		pass
 
 	def new_msg(self, msg):
+
 
 
 

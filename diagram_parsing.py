@@ -11,7 +11,7 @@ class DiagramObject(object):
 
 	def __init__(self, value, obj_id):
 		self.value = value
-		self.my_id = obj_id
+		self.obj_id = obj_id
 
 	def get_value(self):
 		return self.value
@@ -90,7 +90,7 @@ class BotDiagram(object):
 		self.messages.append(BotMsg(msg, obj_id))
 
 	def new_button(self, value, obj_id, source_id, target_id):
-		if not self.find_msg(target_id):
+		if self.find_msg(target_id) == None:
 			print("Target block does not exist")
 			print("Arrows with value \"" + str(value) + " \"")
 			raise DiagramElemError
@@ -106,13 +106,13 @@ class BotDiagram(object):
 		msgs = []
 		for msg in self.messages:
 			msgs.append(msg.get_id())
-		print(msgs)
+		return msgs
 
 	def get_buttons_id(self):
 		butns = []
 		for button in self.buttons:
 			butns.append(button.get_id())
-		print(butns)
+		return butns
 
 	def start_point(self):
 		start_msg = None
@@ -135,8 +135,7 @@ class BotDiagram(object):
 			return start_msg
 
 	def __str__(self):
-		print("Messages id " + str(self.get_messages_id()))
-		print("Buttons id " + str(self.get_buttons_id()))
+		return "Messages id " + str(self.get_messages_id()) + '\n' + "Buttons id " + str(self.get_buttons_id())
 
 # def find_all_arrow(root):
 	#arrow it`s "mxcell" tag with style param "edgeStyle=orthogonalEdgeStyle" or with "endArrow=classic"
@@ -173,7 +172,7 @@ def get_arrows_block(obj_list):
 	i = 0
 	while i < len(obj_list):
 		if 'source' in obj_list[i].attrs and 'target' in obj_list[i].attrs:
-			if is_object_style(obj_list[i], pos_style_list = ['endArrow=classic'], neg_style_list = ['startArrow=classic']) or is_object_style(obj_list[i], pos_style_list=['edgeStyle=orthogonalEdgeStyle', 'orthogonalLoop=1']):
+			if is_object_style(obj_list[i], pos_style_list = ['endArrow=classic'], neg_style_list = ['startArrow=classic']) or is_object_style(obj_list[i], pos_style_list=['orthogonalLoop=1']):
 				arrows.append(obj_list.pop(i))
 				i -= 1
 		i += 1
@@ -208,6 +207,9 @@ def create_structure(arrows, messages):
 		diagram.new_msg(message['value'], message['id'])
 	for arrow in arrows:
 		diagram.new_button(arrow['value'], arrow['id'], arrow['source'], arrow['target'])
+	print(diagram.start_point().get_value())
+	print(diagram)
+
 
 def parse_diagram(file_path):
 	'''
@@ -222,6 +224,7 @@ def parse_diagram(file_path):
 		all_obj = get_all_objects(root, 'mxcell', 'value', 'style')
 		# for elem in all_obj:
 		# 	print(elem.attrs)
+		# exit()
 		print("Arrows")
 		arr = get_arrows_block(all_obj)
 		for arrows in arr:
@@ -231,9 +234,8 @@ def parse_diagram(file_path):
 		for mes in message:
 			print(mes)
 		if len(all_obj) == 0:
-			create_structure(message, arr)
+			create_structure(arr, message)
 			print("Diagram valid")
-
 		else:
 			print("Diagram not valid")
 		print("Else element")
@@ -241,4 +243,4 @@ def parse_diagram(file_path):
 			print(elem)
 
 #Detect graph root (1 connection, only like source)
-parse_diagram('test_connect_new2.xml')
+parse_diagram('test_linear_true_diagram.xml')

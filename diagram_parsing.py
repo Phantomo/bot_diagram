@@ -7,6 +7,7 @@ class DiagramObject(object):
 	value = None
 	obj_id = None
 	con_id = []  #connection identificators
+	state = None
 
 	def __init__(self, value, obj_id):
 		self.value = value
@@ -20,6 +21,12 @@ class DiagramObject(object):
 
 	def get_id(self):
 		return self.obj_id
+
+	def get_state(self):
+		return self.state
+
+	def set_state(self, state):
+		self.state = state
 
 	def add_connection(self, connection_id):
 		if connection_id != None:
@@ -48,6 +55,9 @@ class DiagramArrow(DiagramObject):
 	def get_source_id(self):
 		return self.source_id
 
+	def add_connection(self, connection_id):
+		print("Method do not use for this object")
+
 class BotMsg(DiagramObject):
 
 	def __init__(self, msg, obj_id):
@@ -57,7 +67,7 @@ class BotMsg(DiagramObject):
 		return super().get_value()
 
 class BotDiagram(object):
-	#In begining must create all messages and just after this buttons
+	#In begining must create all messages(blocks) and just after this - buttons
 	messages = []
 	buttons = []
 
@@ -80,6 +90,10 @@ class BotDiagram(object):
 		self.messages.append(BotMsg(msg, obj_id))
 
 	def new_button(self, value, obj_id, source_id, target_id):
+		if not self.find_msg(target_id):
+			print("Target block does not exist")
+			print("Arrows with value \"" + str(value) + " \"")
+			raise DiagramElemError
 		self.buttons.append(DiagramArrow(value, obj_id, source_id, target_id))
 		msg = self.find_msg(source_id)
 		if msg:
@@ -187,6 +201,14 @@ def get_message_block(obj_list):
 		i += 1
 	return messages
 
+
+def create_structure(arrows, messages):
+	diagram = BotDiagram()
+	for message in messages:
+		diagram.new_msg(message['value'], message['id'])
+	for arrow in arrows:
+		diagram.new_button(arrow['value'], arrow['id'], arrow['source'], arrow['target'])
+
 def parse_diagram(file_path):
 	'''
 	Take path to *.xml file with diagram
@@ -208,5 +230,15 @@ def parse_diagram(file_path):
 		message = get_message_block(all_obj)
 		for mes in message:
 			print(mes)
+		if len(all_obj) == 0:
+			create_structure(message, arr)
+			print("Diagram valid")
+
+		else:
+			print("Diagram not valid")
+		print("Else element")
+		for elem in all_obj:
+			print(elem)
+
 #Detect graph root (1 connection, only like source)
 parse_diagram('test_connect_new2.xml')
